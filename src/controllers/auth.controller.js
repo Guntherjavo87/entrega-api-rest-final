@@ -1,3 +1,4 @@
+// auth.controller.js
 import jwt from "jsonwebtoken";
 
 const default_user = {
@@ -9,18 +10,13 @@ const default_user = {
 export const login = (req, res) => {
   const { email, password } = req.body;
 
-  const user = { id: 1 };
-
-  if (email == default_user.email && password == default_user.password) {
-    const payload = { user };
+  if (email === default_user.email && password === default_user.password) {
+    const payload = { user: { id: default_user.id, email } };
     const expiration = { expiresIn: "1h" };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, expiration);
-
-    res.json({ token });
-  } else {
-    return res.sendStatus(401);
+    return res.json({ token });
   }
 
-  res.json({ messge: "ok" });
+  return res.sendStatus(401);
 };

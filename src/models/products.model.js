@@ -1,11 +1,4 @@
-import fs from "fs";
-import path from "path";
 
-const __dirname = import.meta.dirname;
-
-const jsonPath = path.join(__dirname, "./products.json");
-const json = fs.readFileSync(jsonPath, "utf-8");
-const products = JSON.parse(json);
 
 // console.log(products);
 
@@ -43,12 +36,15 @@ export const getProductById = async (id) => {
 
 export const createProduct = async (data) => {
   try {
-    const docRef = await addDoc(productsCollection, data);
-    return { id: docRef.id, ...data };
+    const docRef = doc(productsCollection); // crea referencia con ID propio
+    const newProduct = { id: docRef.id, ...data };
+    await setDoc(docRef, newProduct); // guarda el ID como parte del documento
+    return newProduct;
   } catch (error) {
     console.error(error);
   }
 };
+
 
 // PUT
 export async function updateProduct(id, productData) {

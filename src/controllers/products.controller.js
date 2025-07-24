@@ -1,54 +1,67 @@
+// products.controller.js
 import * as model from "../models/products.model.js";
 
 export const getAllProducts = async (req, res) => {
-  const products = await model.getAllProducts();
-  // console.log(products);
-  res.json(products);
+  try {
+    const products = await model.getAllProducts();
+    return res.json(products);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
 
-export const searchProduct = (req, res) => {
-  const { name } = req.query;
+export const searchProduct = async (req, res) => {
+  try {
+    const { name } = req.query;
+    const products = await model.getAllProducts();
 
-  const products = model.getAllProducts();
+    const filteredProducts = products.filter((p) =>
+      p.name.toLowerCase().includes(name.toLowerCase())
+    );
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(name.toLowerCase())
-  );
-
-  res.json(filteredProducts);
+    return res.json(filteredProducts);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
 
 export const getProductById = async (req, res) => {
-  const { id } = req.params;
+  try {
+    const { id } = req.params;
+    const product = await model.getProductById(id);
 
-  const product = await model.getProductById(id);
+    if (!product) {
+      return res.status(404).json({ error: "No existe el producto" });
+    }
 
-  if (!product) {
-    res.status(404).json({ error: "No existe el producto" });
+    return res.json(product);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-
-  res.json(product);
 };
 
 export const createProduct = async (req, res) => {
-  const { name, price, categories } = req.body;
+  try {
+    const { name, price, categories } = req.body;
+    const newProduct = await model.createProduct({ name, price, categories });
 
-  const newProduct = await model.createProduct({ name, price, categories });
-
-  res.status(201).json(newProduct);
+    return res.status(201).json(newProduct);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
 };
 
-
-
 export const deleteProduct = async (req, res) => {
-  const productId = req.params.id;
-  console.log(productId);
+  try {
+    const productId = req.params.id;
+    const product = await model.deleteProduct(productId);
 
-  const product = await model.deleteProduct(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
 
-  if (!product) {
-    return res.status(404).json({ error: "Producto no encontrado" });
+    return res.status(204).send();
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
-
-  res.status(204).send();
 };
